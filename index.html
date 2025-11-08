@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz de Recuerdos y Ritmos</title>
+  <link rel="icon" href="img/placeholder.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app-shell" data-theme="dark">
+    <header class="top">
+      <h1>Recuerdos, latidos y la ecuación perfecta</h1>
+      <p class="tagline">Completa el quiz mientras la música pinta el fondo. Cuando aciertes todo, la física nos contará un secreto.</p>
+    </header>
+
+    <main>
+      <section class="player-card" aria-label="Reproductor musical con visualizador">
+        <div class="player-media">
+          <img src="img/cover1.jpg" alt="Carátula del álbum" class="cover" id="track-cover" />
+          <div class="player-controls">
+            <div class="track-meta">
+              <span id="track-title">Canción 1</span>
+              <button id="theme-toggle" class="chip" type="button" aria-label="Cambiar tema claro/oscuro">Tema: Dark</button>
+            </div>
+            <div class="buttons">
+              <button id="prev" type="button" aria-label="Pista anterior">⏮</button>
+              <button id="play" type="button" aria-label="Reproducir">▶️</button>
+              <button id="next" type="button" aria-label="Pista siguiente">⏭</button>
+            </div>
+            <div class="progress-group">
+              <span id="current-time" aria-live="off">0:00</span>
+              <div class="range" role="slider" tabindex="0" aria-label="Posición de la pista" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="range__fill" id="seek-fill"></div>
+              </div>
+              <span id="duration">0:00</span>
+            </div>
+            <div class="extra-controls">
+              <label class="volume">
+                <span>🔊</span>
+                <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen" />
+              </label>
+              <button id="mute" type="button" aria-pressed="false" aria-label="Silenciar">Mute</button>
+              <button id="upload" type="button" aria-label="Subir canción personalizada">Subir canción</button>
+              <input type="file" id="uploader" accept="audio/mpeg" hidden />
+            </div>
+          </div>
+        </div>
+        <canvas id="visualizer" width="640" height="240" aria-hidden="true"></canvas>
+      </section>
+
+      <section class="quiz" aria-labelledby="quiz-title">
+        <div class="quiz-header">
+          <h2 id="quiz-title">Nuestro Quiz de 10 latidos</h2>
+          <div class="progress" aria-hidden="true">
+            <div class="bar" id="quiz-progress"></div>
+          </div>
+          <div class="chips" id="quiz-status" aria-live="polite"></div>
+        </div>
+        <form id="quiz-form" novalidate></form>
+        <div class="quiz-actions">
+          <button type="button" id="verify" class="primary">Verificar respuestas</button>
+          <button type="button" id="reset" class="ghost">Reiniciar selección</button>
+        </div>
+      </section>
+
+      <section id="secret" class="secret" hidden aria-live="polite">
+        <h2>Sección secreta desbloqueada</h2>
+        <p class="equation">(i γ<sup>μ</sup> ∂<sub>μ</sub> − m) ψ = 0</p>
+        <p class="message">Entre ecuaciones y recuerdos, lo nuestro se escribe así. La ecuación de Dirac describe partículas con spin 1/2; para mí, describe que incluso en el ruido del universo, tú y yo encontramos simetría. Si todo es probabilidad, mi estado favorito eres tú.</p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Hecho con amor, música y matemáticas.</p>
+      <label class="toggle">
+        <input type="checkbox" id="motion-toggle" />
+        <span>Respetar reduce motion</span>
+      </label>
+    </footer>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

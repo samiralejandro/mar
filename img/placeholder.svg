@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="grad" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#8EC5FC" />
+      <stop offset="100%" stop-color="#E0C3FC" />
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="200" height="200" fill="url(#grad)" rx="24" />
+  <g fill="#ffffff" font-family="'Playfair Display', serif" font-size="24" text-anchor="middle">
+    <text x="100" y="96">Recuerdo</text>
+    <text x="100" y="128" font-size="14">Agrega tu foto</text>
+  </g>
+</svg>
