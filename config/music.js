@@ -1,4 +1,5 @@
+// Playlist reducida a una sola canción.
+// Asegúrate de que el archivo exista en `music/track1.mp3`.
 export const TRACKS = [
-  { title: "Canción 1", src: "music/track1.mp3", cover: "img/cover1.jpg" },
-  { title: "Canción 2", src: "music/track2.mp3", cover: "img/cover2.jpg" }
+  { title: "Canción", src: "music/track1.mp3", cover: "img/cover1.jpg" }
 ];

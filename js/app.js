@@ -460,9 +460,12 @@ bindPlayerControls();
 setupThemeToggle();
 setupMotionToggle();
 
-window.addEventListener('click', () => {
-  audioManager.ensureContext();
+// Primer click en la página: habilita contexto de audio y empieza a reproducir
+window.addEventListener('click', async () => {
+  await audioManager.ensureContext();
   if (sfx.context.state === 'suspended') {
-    sfx.context.resume();
+    await sfx.context.resume();
   }
+  // Intenta reproducir la pista por defecto tras la primera interacción.
+  try { await audioManager.play(); } catch (_) {}
 }, { once: true });
