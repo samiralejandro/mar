@@ -570,18 +570,20 @@ function setupMotionToggle() {
 
 function setupTabNavigation() {
   if (!tabButtons.length || !tabPanels.length) return;
-  let currentPanel = Array.from(tabPanels).find((panel) => !panel.hasAttribute('hidden'))?.id || 'panel-quiz';
+  const buttons = Array.from(tabButtons);
+  const panels = Array.from(tabPanels);
+  let currentPanel = panels.find((panel) => !panel.hasAttribute('hidden'))?.id || 'panel-quiz';
   tourState.active = currentPanel === 'panel-tour';
 
   const showPanel = (panelId) => {
     if (!panelId || panelId === currentPanel) return;
-    tabButtons.forEach((button) => {
+    buttons.forEach((button) => {
       const selected = button.dataset.panel === panelId;
       button.classList.toggle('is-active', selected);
       button.setAttribute('aria-selected', selected ? 'true' : 'false');
     });
 
-    tabPanels.forEach((panel) => {
+    panels.forEach((panel) => {
       const visible = panel.id === panelId;
       panel.classList.toggle('is-active', visible);
       panel.toggleAttribute('hidden', !visible);
@@ -600,7 +602,7 @@ function setupTabNavigation() {
     }
   };
 
-  tabButtons.forEach((button) => {
+  buttons.forEach((button) => {
     button.addEventListener('click', () => showPanel(button.dataset.panel));
   });
 }
