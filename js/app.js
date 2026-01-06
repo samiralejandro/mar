@@ -160,15 +160,17 @@ class SFXPlayer {
 
 const sfx = new SFXPlayer();
 
-class StarTunnel {
+class GalaxyScene {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas?.getContext('2d');
-    this.stars = [];
+    this.particles = [];
     this.running = false;
-    this.speed = 0;
-    this.targetSpeed = 0;
     this.lastTime = 0;
+    this.rotation = 0;
+    this.warp = 0;
+    this.targetWarp = 0.25;
+    this.progress = 0;
     this.resize = this.resize.bind(this);
     this.loop = this.loop.bind(this);
     if (this.ctx) {
@@ -177,32 +179,32 @@ class StarTunnel {
   }
 
   setup() {
-    this.populate();
+    this.createParticles();
     this.resize();
     window.addEventListener('resize', this.resize);
   }
 
-  populate() {
-    const total = 700;
-    this.stars = Array.from({ length: total }, () => this.createStar());
+  createParticles() {
+    const total = 900;
+    this.particles = Array.from({ length: total }, () => this.makeParticle());
   }
 
-  createStar() {
+  makeParticle() {
     return {
+      radius: 0.08 + Math.random() * 0.5,
       angle: Math.random() * Math.PI * 2,
-      radius: 0.2 + Math.random() * 0.8,
-      depth: Math.random(),
-      size: 0.5 + Math.random() * 1.8
+      speed: 0.0015 + Math.random() * 0.003,
+      hue: 200 + Math.random() * 120,
+      alpha: 0.35 + Math.random() * 0.6,
+      size: 0.5 + Math.random() * 1.8,
+      wobble: Math.random() * 3
     };
   }
 
   resize() {
     if (!this.canvas || !this.ctx) return;
-    const width = this.canvas.clientWidth || this.canvas.offsetWidth;
-    const height = this.canvas.clientHeight || this.canvas.offsetHeight;
-    this.canvas.width = width;
-    this.canvas.height = height;
-    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.canvas.width = this.canvas.clientWidth || this.canvas.offsetWidth;
+    this.canvas.height = this.canvas.clientHeight || this.canvas.offsetHeight;
   }
 
   start() {
@@ -214,19 +216,20 @@ class StarTunnel {
 
   stop() {
     this.running = false;
-    this.speed = 0;
-    this.targetSpeed = 0;
   }
 
-  setSpeed(value) {
-    this.targetSpeed = Math.max(0, Math.min(1.5, value));
+  setProgress(value) {
+    const clamped = Math.max(0, Math.min(1, value));
+    this.progress = clamped;
+    this.targetWarp = 0.2 + clamped * 1.2;
   }
 
   loop(time) {
     if (!this.running || !this.ctx) return;
     const delta = (time - this.lastTime) / 16;
     this.lastTime = time;
-    this.speed += (this.targetSpeed - this.speed) * 0.05;
+    this.warp += (this.targetWarp - this.warp) * 0.05;
+    this.rotation += 0.0006 * delta * (1 + this.progress);
     this.draw(delta);
     requestAnimationFrame(this.loop);
   }
@@ -234,34 +237,42 @@ class StarTunnel {
   draw(delta) {
     const { canvas, ctx } = this;
     if (!canvas || !ctx) return;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
     const width = canvas.width || canvas.clientWidth;
     const height = canvas.height || canvas.clientHeight;
     ctx.clearRect(0, 0, width, height);
-    const centerX = width / 2;
-    const centerY = height / 2;
+    ctx.fillStyle = '#040312';
+    ctx.fillRect(0, 0, width, height);
+    const cx = width / 2;
+    const cy = height / 2;
+    const maxRadius = Math.max(width, height) * 0.45;
 
-    for (const star of this.stars) {
-      star.depth -= this.speed * delta * 0.002;
-      if (star.depth <= 0) {
-        Object.assign(star, this.createStar());
-        star.depth = 1;
-      }
-      star.angle += this.speed * 0.002;
-      const perspective = 1 / (star.depth || 0.0001);
-      const radius = star.radius * Math.max(width, height) * 0.35;
-      const x = centerX + Math.cos(star.angle) * radius * perspective;
-      const y = centerY + Math.sin(star.angle) * radius * perspective;
-      const size = star.size * perspective;
+    const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxRadius);
+    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.9)');
+    gradient.addColorStop(0.35, 'rgba(8, 3, 20, 0.85)');
+    gradient.addColorStop(0.75, 'rgba(18, 8, 38, 0.2)');
+    gradient.addColorStop(1, 'rgba(5, 3, 18, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.globalCompositeOperation = 'lighter';
+    this.particles.forEach((star) => {
+      star.angle += (star.speed + this.warp * 0.002) * delta;
+      const radius = star.radius * maxRadius * (0.6 + this.progress * 0.6);
+      const wobble = Math.sin(this.rotation * 2 + star.wobble) * (this.progress * 8);
+      const x = cx + Math.cos(star.angle + this.rotation) * (radius + wobble);
+      const y = cy + Math.sin(star.angle + this.rotation) * (radius + wobble * 0.6);
+      const size = star.size * (1 + this.warp * 0.4);
       ctx.beginPath();
-      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, perspective * 0.3)})`;
+      ctx.fillStyle = `hsla(${star.hue}, 90%, 70%, ${star.alpha})`;
       ctx.arc(x, y, size, 0, Math.PI * 2);
       ctx.fill();
-    }
+    });
+    ctx.globalCompositeOperation = 'source-over';
   }
 }
 
-const starTunnel = tourCanvas ? new StarTunnel(tourCanvas) : null;
+const galaxyScene = tourCanvas ? new GalaxyScene(tourCanvas) : null;
+
 
 function renderQuiz() {
   const fragment = document.createDocumentFragment();
@@ -593,13 +604,13 @@ function setupTabNavigation() {
     currentPanel = panelId;
     tourState.active = panelId === 'panel-tour';
     if (tourState.active) {
-      starTunnel?.resize();
+      galaxyScene?.resize();
       if (tourState.journeyStarted) {
-        starTunnel?.start();
+        galaxyScene?.start();
         updateTourProgress();
       }
     } else {
-      starTunnel?.stop();
+      galaxyScene?.stop();
     }
   };
 
@@ -617,6 +628,7 @@ function setupInteractiveTour() {
       tourState.journeyStarted = true;
       tourState.visited.clear();
       tourState.completed = false;
+      galaxyScene?.setProgress(0);
       tourIntro?.classList.add('is-hidden');
       tourStartBtn.textContent = 'Viaje en curso';
       tourStartBtn.disabled = true;
@@ -624,21 +636,25 @@ function setupInteractiveTour() {
         focusTourStop(tourStops[0]);
       }
       if (tourState.active) {
-        starTunnel?.start();
+        galaxyScene?.start();
         updateTourProgress();
       }
     });
   }
 
   const observer = new IntersectionObserver((entries) => {
-    if (!tourState.journeyStarted) return;
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        focusTourStop(entry.target);
+        entry.target.classList.add('is-visible');
+        if (tourState.journeyStarted) {
+          focusTourStop(entry.target);
+        }
+      } else {
+        entry.target.classList.remove('is-visible');
       }
     });
   }, {
-    threshold: 0.55
+    threshold: 0.45
   });
 
   tourStops.forEach((stop) => {
@@ -676,8 +692,8 @@ function updateTourProgress() {
   if (tourProgressBar) {
     tourProgressBar.style.width = `${Math.round(progress * 100)}%`;
   }
-  if (starTunnel) {
-    starTunnel.setSpeed(0.15 + progress * 1.1);
+  if (galaxyScene) {
+    galaxyScene.setProgress(progress);
   }
 }
 
@@ -706,7 +722,7 @@ function focusTourStop(stop, manual = false) {
 function celebrateTour() {
   launchConfetti();
   if (tourCaption) {
-    tourCaption.innerHTML = '<span class="caption-title">Mision cumplida</span>Visitaste cada planeta. Ahora el universo es nuestro mapa.';
+    tourCaption.innerHTML = '<span class="caption-title">Galaxia completa</span>Visitaste cada órbita. Este agujero negro ahora susurra lo que sueñes.';
   }
 }
 

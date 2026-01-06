@@ -436,6 +436,8 @@ body {
   padding: clamp(1.75rem, 4vw, 3rem);
   position: relative;
   overflow: hidden;
+  display: grid;
+  gap: 2rem;
 }
 
 .tour-shell::before {
@@ -445,6 +447,11 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 30px;
   pointer-events: none;
+}
+
+.tour-shell > * {
+  position: relative;
+  z-index: 1;
 }
 
 .tour-intro {
@@ -491,13 +498,25 @@ body {
 }
 
 .space-stage {
-  background: radial-gradient(circle at 20% 30%, rgba(156, 140, 255, 0.2), transparent 60%), rgba(2, 2, 12, 0.85);
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.06), transparent 55%), #030310;
   border-radius: 28px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 1.5rem;
-  margin-bottom: 2.5rem;
+  padding: 0;
   position: relative;
   overflow: hidden;
+  min-height: clamp(320px, 65vh, 540px);
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
+}
+
+.space-stage::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.85), transparent 70%);
+  filter: blur(25px);
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 #tour-canvas {
@@ -508,23 +527,37 @@ body {
   background: transparent;
 }
 
-.tour-caption {
-  margin-top: 1.25rem;
+.galaxy-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  background: linear-gradient(0deg, rgba(3, 3, 12, 0.95), transparent);
 }
 
-.tour-caption p {
+.galaxy-whisper {
   margin: 0;
-  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
 }
 
-.tour-caption .caption-title {
-  color: var(--text-primary);
-  font-weight: 600;
-  letter-spacing: 0.03em;
+.orbit-readout {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.orbit-readout .caption-title {
   display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.78rem;
+  color: var(--accent);
+  margin-bottom: 0.35rem;
 }
 
 .tour-progress {
@@ -533,6 +566,7 @@ body {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
+  margin-top: 0.5rem;
 }
 
 #tour-progress-bar {
@@ -547,6 +581,7 @@ body {
   display: grid;
   gap: 1.75rem;
   position: relative;
+  padding-top: 1rem;
 }
 
 .tour-stop {
@@ -557,15 +592,24 @@ body {
   display: grid;
   gap: 1.25rem;
   scroll-snap-align: start;
-  transition: border-color var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+  transition: border-color var(--transition-fast), transform var(--transition-fast), background var(--transition-fast), opacity 0.6s ease, filter 0.6s ease;
   position: relative;
   padding-left: 2.5rem;
+  opacity: 0;
+  transform: translateY(40px);
+  filter: blur(12px);
 }
 
 .tour-stop.is-active {
   border-color: var(--accent);
   background: rgba(156, 140, 255, 0.12);
   transform: translateY(-4px);
+}
+
+.tour-stop.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
 }
 
 .stop-orbit {
@@ -636,9 +680,34 @@ body {
   background: var(--accent-strong);
 }
 
+.galaxy-gift {
+  border-image: linear-gradient(120deg, var(--accent), var(--accent-strong)) 1;
+  background: rgba(18, 9, 38, 0.85);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
+}
+
 @media (min-width: 768px) {
+  .tour-shell {
+    grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1fr);
+    grid-template-areas:
+      "intro intro"
+      "space track";
+    align-items: start;
+  }
+
+  .tour-intro {
+    grid-area: intro;
+  }
+
+  .space-stage {
+    grid-area: space;
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+  }
+
   .tour-track {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-area: track;
   }
 
   .tour-stop:nth-child(odd)::before {
@@ -649,6 +718,7 @@ body {
 @media (min-width: 1100px) {
   .tour-track {
     grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 2rem;
   }
 }
 
