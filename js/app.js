@@ -94,6 +94,24 @@ const uploader = document.getElementById('uploader');
 const trackTitle = document.getElementById('track-title');
 const trackCover = document.getElementById('track-cover');
 const playerCard = document.querySelector('.player-card');
+const tabButtons = document.querySelectorAll('.tab-trigger');
+const tabPanels = document.querySelectorAll('.tab-panel');
+const tourPanel = document.getElementById('panel-tour');
+const tourIntro = document.getElementById('tour-intro');
+const tourStartBtn = document.getElementById('tour-start');
+const tourCanvas = document.getElementById('tour-canvas');
+const tourCaption = document.getElementById('tour-caption');
+const tourProgressBar = document.getElementById('tour-progress-bar');
+const tourStops = Array.from(document.querySelectorAll('.tour-stop'));
+let activeTourStop = null;
+const tourState = {
+  active: false,
+  journeyStarted: false,
+  completed: false,
+  visited: new Set(),
+  scrollTicking: false
+};
+const starTunnel = tourCanvas ? new StarTunnel(tourCanvas) : null;
 
 const visualizer = new Visualizer(document.getElementById('visualizer'));
 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -142,6 +160,107 @@ class SFXPlayer {
 }
 
 const sfx = new SFXPlayer();
+
+class StarTunnel {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas?.getContext('2d');
+    this.stars = [];
+    this.running = false;
+    this.speed = 0;
+    this.targetSpeed = 0;
+    this.lastTime = 0;
+    this.resize = this.resize.bind(this);
+    this.loop = this.loop.bind(this);
+    if (this.ctx) {
+      this.setup();
+    }
+  }
+
+  setup() {
+    this.populate();
+    this.resize();
+    window.addEventListener('resize', this.resize);
+  }
+
+  populate() {
+    const total = 700;
+    this.stars = Array.from({ length: total }, () => this.createStar());
+  }
+
+  createStar() {
+    return {
+      angle: Math.random() * Math.PI * 2,
+      radius: 0.2 + Math.random() * 0.8,
+      depth: Math.random(),
+      size: 0.5 + Math.random() * 1.8
+    };
+  }
+
+  resize() {
+    if (!this.canvas || !this.ctx) return;
+    const width = this.canvas.clientWidth || this.canvas.offsetWidth;
+    const height = this.canvas.clientHeight || this.canvas.offsetHeight;
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  start() {
+    if (this.running || !this.ctx) return;
+    this.running = true;
+    this.lastTime = performance.now();
+    requestAnimationFrame(this.loop);
+  }
+
+  stop() {
+    this.running = false;
+    this.speed = 0;
+    this.targetSpeed = 0;
+  }
+
+  setSpeed(value) {
+    this.targetSpeed = Math.max(0, Math.min(1.5, value));
+  }
+
+  loop(time) {
+    if (!this.running || !this.ctx) return;
+    const delta = (time - this.lastTime) / 16;
+    this.lastTime = time;
+    this.speed += (this.targetSpeed - this.speed) * 0.05;
+    this.draw(delta);
+    requestAnimationFrame(this.loop);
+  }
+
+  draw(delta) {
+    const { canvas, ctx } = this;
+    if (!canvas || !ctx) return;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const width = canvas.width || canvas.clientWidth;
+    const height = canvas.height || canvas.clientHeight;
+    ctx.clearRect(0, 0, width, height);
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    for (const star of this.stars) {
+      star.depth -= this.speed * delta * 0.002;
+      if (star.depth <= 0) {
+        Object.assign(star, this.createStar());
+        star.depth = 1;
+      }
+      star.angle += this.speed * 0.002;
+      const perspective = 1 / (star.depth || 0.0001);
+      const radius = star.radius * Math.max(width, height) * 0.35;
+      const x = centerX + Math.cos(star.angle) * radius * perspective;
+      const y = centerY + Math.sin(star.angle) * radius * perspective;
+      const size = star.size * perspective;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, perspective * 0.3)})`;
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
 
 function renderQuiz() {
   const fragment = document.createDocumentFragment();
@@ -449,9 +568,152 @@ function setupMotionToggle() {
   });
 }
 
+function setupTabNavigation() {
+  if (!tabButtons.length || !tabPanels.length) return;
+  let currentPanel = Array.from(tabPanels).find((panel) => !panel.hasAttribute('hidden'))?.id || 'panel-quiz';
+  tourState.active = currentPanel === 'panel-tour';
+
+  const showPanel = (panelId) => {
+    if (!panelId || panelId === currentPanel) return;
+    tabButtons.forEach((button) => {
+      const selected = button.dataset.panel === panelId;
+      button.classList.toggle('is-active', selected);
+      button.setAttribute('aria-selected', selected ? 'true' : 'false');
+    });
+
+    tabPanels.forEach((panel) => {
+      const visible = panel.id === panelId;
+      panel.classList.toggle('is-active', visible);
+      panel.toggleAttribute('hidden', !visible);
+    });
+
+    currentPanel = panelId;
+    tourState.active = panelId === 'panel-tour';
+    if (tourState.active) {
+      starTunnel?.resize();
+      if (tourState.journeyStarted) {
+        starTunnel?.start();
+        updateTourProgress();
+      }
+    } else {
+      starTunnel?.stop();
+    }
+  };
+
+  tabButtons.forEach((button) => {
+    button.addEventListener('click', () => showPanel(button.dataset.panel));
+  });
+}
+
+function setupInteractiveTour() {
+  if (!tourPanel || !tourCanvas || !tourStops.length) return;
+
+  if (tourStartBtn) {
+    tourStartBtn.addEventListener('click', () => {
+      if (tourState.journeyStarted) return;
+      tourState.journeyStarted = true;
+      tourState.visited.clear();
+      tourState.completed = false;
+      tourIntro?.classList.add('is-hidden');
+      tourStartBtn.textContent = 'Viaje en curso';
+      tourStartBtn.disabled = true;
+      if (tourStops.length) {
+        focusTourStop(tourStops[0]);
+      }
+      if (tourState.active) {
+        starTunnel?.start();
+        updateTourProgress();
+      }
+    });
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    if (!tourState.journeyStarted) return;
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        focusTourStop(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.55
+  });
+
+  tourStops.forEach((stop) => {
+    observer.observe(stop);
+    stop.addEventListener('click', () => {
+      if (!tourState.journeyStarted) return;
+      focusTourStop(stop, true);
+    });
+  });
+
+  window.addEventListener('scroll', handleTourScroll, { passive: true });
+  window.addEventListener('resize', () => {
+    if (tourState.active && tourState.journeyStarted) {
+      updateTourProgress();
+    }
+  });
+}
+
+function handleTourScroll() {
+  if (!tourState.active || !tourState.journeyStarted) return;
+  if (tourState.scrollTicking) return;
+  tourState.scrollTicking = true;
+  requestAnimationFrame(() => {
+    updateTourProgress();
+    tourState.scrollTicking = false;
+  });
+}
+
+function updateTourProgress() {
+  if (!tourPanel || !tourState.journeyStarted) return;
+  const viewport = window.innerHeight;
+  const start = tourPanel.offsetTop;
+  const end = start + tourPanel.offsetHeight - viewport;
+  const progress = clamp((window.scrollY - start) / Math.max(end, 1), 0, 1);
+  if (tourProgressBar) {
+    tourProgressBar.style.width = `${Math.round(progress * 100)}%`;
+  }
+  if (starTunnel) {
+    starTunnel.setSpeed(0.15 + progress * 1.1);
+  }
+}
+
+function focusTourStop(stop, manual = false) {
+  if (!stop || activeTourStop === stop) return;
+  activeTourStop = stop;
+  tourStops.forEach((item) => item.classList.toggle('is-active', item === stop));
+  if (tourState.journeyStarted && tourCaption) {
+    const title = stop.dataset.title || 'Recuerdo';
+    const copy = stop.dataset.caption || '';
+    tourCaption.innerHTML = `<span class="caption-title">${title}</span>${copy}`;
+  }
+  const id = stop.dataset.stop || stop.id;
+  if (id) {
+    tourState.visited.add(id);
+  }
+  if (!tourState.completed && tourState.visited.size === tourStops.length) {
+    tourState.completed = true;
+    celebrateTour();
+  }
+  if (manual) {
+    stop.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'center' });
+  }
+}
+
+function celebrateTour() {
+  launchConfetti();
+  if (tourCaption) {
+    tourCaption.innerHTML = '<span class="caption-title">Mision cumplida</span>Visitaste cada planeta. Ahora el universo es nuestro mapa.';
+  }
+}
+
+const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+
 verifyBtn.addEventListener('click', () => verifyAnswers());
 resetBtn.addEventListener('click', () => resetQuiz());
 
+setupTabNavigation();
+setupInteractiveTour();
 renderQuiz();
 updateProgress();
 setupSeek();

@@ -17,7 +17,13 @@
       <p class="tagline">Completa el quiz mientras la música pinta el fondo. Cuando aciertes todo, la física nos contará un secreto.</p>
     </header>
 
-    <main>
+    <nav class="tab-nav" role="tablist" aria-label="Regalos interactivos">
+      <button id="tab-quiz" class="tab-trigger is-active" type="button" role="tab" aria-selected="true" aria-controls="panel-quiz" data-panel="panel-quiz">Ritmos & Quiz</button>
+      <button id="tab-tour" class="tab-trigger" type="button" role="tab" aria-selected="false" aria-controls="panel-tour" data-panel="panel-tour">Tour interactivo</button>
+    </nav>
+
+    <div class="tab-panels">
+      <main id="panel-quiz" class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-quiz">
       <section class="player-card" aria-label="Reproductor musical con visualizador">
         <div class="player-media">
           <img src="img/cover1.jpg" alt="Carátula del álbum" class="cover" id="track-cover" />
@@ -72,7 +78,163 @@
         <p class="equation">(i γ<sup>μ</sup> ∂<sub>μ</sub> − m) ψ = 0</p>
         <p class="message">Entre ecuaciones y recuerdos, lo nuestro se escribe así. La ecuación de Dirac describe partículas con spin 1/2; para mí, describe que incluso en el ruido del universo, tú y yo encontramos simetría. Si todo es probabilidad, mi estado favorito eres tú.</p>
       </section>
-    </main>
+      </main>
+
+      <section id="panel-tour" class="tab-panel tour-panel" role="tabpanel" aria-labelledby="tab-tour" hidden>
+
+        <div class="tour-shell">
+
+          <div class="tour-intro" id="tour-intro">
+
+            <p class="tour-phrase">Hay un universo entero en ti...</p>
+
+            <p class="tour-copy">Esta vez no solo veras una galaxia: la vamos a recorrer. Preparate para pilotar por los recuerdos que nos trajeron hasta aqui.</p>
+
+            <button id="tour-start" class="primary" type="button">Iniciar viaje</button>
+
+          </div>
+
+
+
+          <div class="space-stage" aria-live="polite">
+
+            <canvas id="tour-canvas" width="960" height="420" aria-hidden="true"></canvas>
+
+            <div class="tour-caption">
+
+              <p id="tour-caption">Desplaza hacia abajo y haz clic en cada planeta para ver la memoria que resguarda.</p>
+
+              <div class="tour-progress" aria-hidden="true">
+
+                <span id="tour-progress-bar"></span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="tour-track" id="tour-track">
+
+            <article class="tour-stop" data-stop="tunja" data-title="Noche estrellada en Tunja" data-caption="Hace tres años, las montañas y las estrellas conspiraron para presentarnos." >
+
+              <div class="stop-orbit">
+
+                <span class="orbit-label">Tunja</span>
+
+                <span class="planet"></span>
+
+              </div>
+
+              <div class="stop-card">
+
+                <figure>
+
+                  <img src="img/q1.jpg" alt="Recuerdo del viaje a Tunja" loading="lazy" />
+
+                  <figcaption>Abril 2024 - Primer viaje</figcaption>
+
+                </figure>
+
+                <p>Nos conocimos en una noche estrellada en Tunja hace tres años. El frío se llenó de voces y de miradas tímidas, y desde entonces el firmamento tiene nuestros nombres.</p>
+
+              </div>
+
+            </article>
+
+
+
+            <article class="tour-stop" data-stop="javeriana" data-title="Constelación Javeriana" data-caption="Las palabras más simples nos empujaron a un universo que no imaginábamos." >
+
+              <div class="stop-orbit">
+
+                <span class="orbit-label">Javeriana</span>
+
+                <span class="planet"></span>
+
+              </div>
+
+              <div class="stop-card">
+
+                <figure>
+
+                  <img src="img/q7.jpg" alt="Conversaciones en la Javeriana" loading="lazy" />
+
+                  <figcaption>Javeriana - Conversaciones</figcaption>
+
+                </figure>
+
+                <p>Nos hablamos en la Javeriana y no sabíamos lo que se venía en nuestras vidas. Cada pasillo guardó nuestros secretos y cada café encendió el viaje que hoy seguimos.</p>
+
+              </div>
+
+            </article>
+
+
+
+            <article class="tour-stop" data-stop="primer-beso" data-title="Chiva de los latidos" data-caption="Entre música y luces, el amor decidió quedarse." >
+
+              <div class="stop-orbit">
+
+                <span class="orbit-label">La chiva</span>
+
+                <span class="planet"></span>
+
+              </div>
+
+              <div class="stop-card">
+
+                <figure>
+
+                  <img src="img/q2.jpg" alt="Nuestra foto en la chiva" loading="lazy" />
+
+                  <figcaption>Chiva - Primer beso</figcaption>
+
+                </figure>
+
+                <p>Una chiva rumbera cerró nuestro amor. Con cada tamborazo nuestras manos se enlazaron más, y el universo entero se quedó quieto para que nos besáramos.</p>
+
+              </div>
+
+            </article>
+
+
+
+            <article class="tour-stop" data-stop="destino" data-title="Firma de destinos" data-caption="La piel decidió lo que las estrellas ya sabían." >
+
+              <div class="stop-orbit">
+
+                <span class="orbit-label">Destino</span>
+
+                <span class="planet"></span>
+
+              </div>
+
+              <div class="stop-card">
+
+                <figure>
+
+                  <img src="img/q8.jpg" alt="Boceto del perro salchicha sonado" loading="lazy" />
+
+                  <figcaption>Piel y destino</figcaption>
+
+                </figure>
+
+                <p>Mi piel enlazó nuestras vidas y el amor firmará nuestros destinos. Cada plan futuro, cada viaje pendiente y cada sueño lleva tu nombre escrito con luz.</p>
+
+              </div>
+
+            </article>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
 
     <footer class="footer">
       <p>Hecho con amor, música y matemáticas.</p>

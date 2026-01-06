@@ -59,6 +59,48 @@ body {
   line-height: 1.5;
 }
 
+.tab-nav {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.tab-trigger {
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.4rem;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.tab-trigger:hover {
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.tab-trigger.is-active {
+  background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+  color: #0b0619;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+
+.tab-panels {
+  margin-top: 2rem;
+  display: grid;
+  gap: 2.5rem;
+}
+
+.tab-panel[hidden] {
+  display: none;
+}
+
 .player-card,
 .quiz,
 .secret {
@@ -380,6 +422,234 @@ body {
   margin: 0 auto;
   line-height: 1.6;
   color: var(--text-secondary);
+}
+
+.tour-panel {
+  padding: 0;
+}
+
+.tour-shell {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 32px;
+  box-shadow: var(--shadow);
+  padding: clamp(1.75rem, 4vw, 3rem);
+  position: relative;
+  overflow: hidden;
+}
+
+.tour-shell::before {
+  content: "";
+  position: absolute;
+  inset: 10%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  pointer-events: none;
+}
+
+.tour-intro {
+  text-align: center;
+  margin-bottom: 2rem;
+  transition: opacity var(--transition-slow), transform var(--transition-slow);
+}
+
+.tour-intro.is-hidden {
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+}
+
+.tour-phrase {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 0.75rem;
+}
+
+.tour-copy {
+  color: var(--text-secondary);
+  max-width: 60ch;
+  margin: 0 auto 1.5rem;
+  line-height: 1.6;
+}
+
+#tour-start,
+.tour-start {
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem 2.4rem;
+  background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+  color: #0b0619;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+#tour-start:hover,
+.tour-start:hover {
+  transform: translateY(-3px);
+}
+
+.space-stage {
+  background: radial-gradient(circle at 20% 30%, rgba(156, 140, 255, 0.2), transparent 60%), rgba(2, 2, 12, 0.85);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+#tour-canvas {
+  width: 100%;
+  height: clamp(260px, 45vw, 420px);
+  display: block;
+  border-radius: 18px;
+  background: transparent;
+}
+
+.tour-caption {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tour-caption p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.tour-caption .caption-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  display: block;
+}
+
+.tour-progress {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+#tour-progress-bar {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  transition: width 0.4s ease;
+}
+
+.tour-track {
+  display: grid;
+  gap: 1.75rem;
+  position: relative;
+}
+
+.tour-stop {
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 10, 25, 0.55);
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.25rem;
+  scroll-snap-align: start;
+  transition: border-color var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+  position: relative;
+  padding-left: 2.5rem;
+}
+
+.tour-stop.is-active {
+  border-color: var(--accent);
+  background: rgba(156, 140, 255, 0.12);
+  transform: translateY(-4px);
+}
+
+.stop-orbit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: var(--text-secondary);
+}
+
+.stop-orbit .planet {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 0 25px rgba(156, 140, 255, 0.7);
+  display: inline-block;
+}
+
+.stop-card figure {
+  margin: 0;
+}
+
+.stop-card img {
+  width: 100%;
+  border-radius: 20px;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.45);
+}
+
+.stop-card figcaption {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.stop-card p {
+  margin: 0 0 0.75rem;
+  line-height: 1.6;
+}
+
+.tour-track::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  pointer-events: none;
+}
+
+.tour-stop::before {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  top: 1.7rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.tour-stop.is-active::before {
+  background: var(--accent-strong);
+}
+
+@media (min-width: 768px) {
+  .tour-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tour-stop:nth-child(odd)::before {
+    left: 0.5rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  .tour-track {
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+  }
 }
 
 .footer {
