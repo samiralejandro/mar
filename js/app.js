@@ -111,7 +111,6 @@ const tourState = {
   visited: new Set(),
   scrollTicking: false
 };
-const starTunnel = tourCanvas ? new StarTunnel(tourCanvas) : null;
 
 const visualizer = new Visualizer(document.getElementById('visualizer'));
 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -261,6 +260,8 @@ class StarTunnel {
     }
   }
 }
+
+const starTunnel = tourCanvas ? new StarTunnel(tourCanvas) : null;
 
 function renderQuiz() {
   const fragment = document.createDocumentFragment();
